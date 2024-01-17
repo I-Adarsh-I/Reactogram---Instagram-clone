@@ -1,0 +1,54 @@
+.navbar {
+  z-index: 1;
+}
+.nav-logo {
+  width: 60%;
+}
+
+.navbar-nav {
+  flex-direction: row;
+  gap: 20px;
+  padding: 0 10px;
+}
+.navbar-form {
+  width: 40%;
+  gap: 5px;
+}
+.fa-magnifying-glass {
+  display: none;
+}
+
+@media screen and (min-width: 320px) and (max-width: 479px) {
+  .search-icon {
+    font-size: 0.85rem;
+  }
+  .fa-house,
+  .heart-nav,
+  .fa-user {
+    font-size: 1rem;
+  }
+
+  .navbar-brand {
+    width: 50%;
+  }
+  .nav-logo {
+    width: 50%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .search-icon {
+    font-size: 1.10rem;
+  }
+  .form-control {
+    display: none;
+  }
+  .fa-magnifying-glass {
+    display: block;
+  }
+  .fa-house,
+  .heart-nav,
+  .fa-user {
+    font-size: 1.25rem;
+  }
+}
