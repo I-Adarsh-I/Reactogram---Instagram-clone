@@ -1,15 +1,16 @@
 import React from "react";
 import './navbar.css';
 import Logo from '../../Assets/Logo.png'
+import { useNavigate, Link } from "react-router-dom";
 
 function Navbar() {
   return (
       <nav className="navbar navbar-light bg-light shadow-sm">
         <div className="container container-fluid">
           <div className="navbar-brand">
-          <a href="/">
+          <Link to={"/"}>
             <img src={Logo} alt='Reactogram' className='nav-logo'/>
-          </a>
+          </Link>
           </div>
           <form className="d-flex navbar-form">
             <input
@@ -25,7 +26,7 @@ function Navbar() {
               <ul className="nav-links navbar-nav ">
                 <li className="link-item"> <a href="/" className="nav-link"><i className="fa-solid fa-house fa-lg" style={{color: "#000000"}}></i></a></li>
                 <li className="link-item"> <a href="/" className="nav-link"><i className="fa-regular fa-heart fa-lg heart-nav" style={{color: "#000000"}}></i></a></li>
-                <li className="link-item"> <a href="/" className="nav-link"><i className="fa-regular fa-user fa-lg" style={{color: "#000000"}}></i></a></li>
+                <li className="link-item"> <Link to={'/profile'} className="nav-link"><i className="fa-regular fa-user fa-lg" style={{color: "#000000"}}></i></Link></li>
               </ul>
             </div>
           </form>

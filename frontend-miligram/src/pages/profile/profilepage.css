@@ -1,0 +1,79 @@
+.profilePage-main-con-top {
+  /* height: 40vh; */
+  height: fit-content;
+}
+.profile-pic-con-pp {
+  height: 150px;
+  width: 150px;
+}
+.seperator {
+  border: 1px solid lightgray;
+  height: 70px;
+}
+.list-con {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+.list-con-i {
+  text-align: center;
+  width: 80px;
+}
+.options-con {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+.pp-t-r-con {
+  height: 30vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.pp-t-l-con {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.opt-btn{
+    color: black;
+    border-color: none;
+    border: 1px solid lightgray;
+}
+
+@media screen and (max-width: 480px) {
+    .profilePage-main-con-top {
+        height: fit-content;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+    .pp-t-r-con {
+        height: 25vh;
+        display: flex;
+        flex-direction: column-reverse;
+        justify-content: space-evenly;
+        align-items: center;
+        padding: 0;
+      }
+      .options-con{
+        padding: 0 12px;
+        width: 100%;
+      }
+      .opt-btn{
+        width: 100%;
+      }
+      .person-profile-img-info-con{
+        display: flex;
+        /* justify-content: center; */
+        align-items: center;
+        gap: 20px;
+      }
+      .pp-t-l-con {
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+    }
+}
