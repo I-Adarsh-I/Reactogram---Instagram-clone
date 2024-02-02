@@ -1,7 +1,15 @@
-import React from "react";
+import React, {useState} from "react";
 import "./profilepage.css";
+import { Button, Modal } from "react-bootstrap";
 
 function ProfilePage() {
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+
   return (
     <div className="container main-profile-page card mt-3">
       <div className="profilePage-main-con-top container">
@@ -58,7 +66,7 @@ function ProfilePage() {
       </div>
       <div className="profile-gallery row g-4">
         <div className="col-md-4 col-sm-12">
-          <div className="card">
+          <div className="card" onClick={handleShow} style={{cursor:'pointer'}}>
             <img
               className="gallery-pic w-100 rounded"
               alt="Profile pic"
@@ -85,6 +93,22 @@ function ProfilePage() {
           </div>
         </div>
       </div>
+
+      <Modal show={show} onHide={handleClose}>
+        <div className="container">
+          <div className="row">
+            <div className="col">
+            <img
+            className="gallery-pic w-100 rounded"
+            alt="Profile pic"
+            src="https://images.unsplash.com/photo-1494783367193-149034c05e8f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          />
+          {/* </div> */}
+            </div>
+            <div className="col">2</div>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
