@@ -41,6 +41,12 @@
     border-color: none;
     border: 1px solid lightgray;
 }
+.modal-main-con{
+  display: flex;
+}
+.modal-header{
+  border-bottom: none;
+}
 
 @media screen and (max-width: 480px) {
     .profilePage-main-con-top {
