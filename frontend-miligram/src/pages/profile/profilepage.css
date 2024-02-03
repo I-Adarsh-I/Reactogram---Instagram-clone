@@ -47,6 +47,57 @@
 .modal-header{
   border-bottom: none;
 }
+.btn-close {
+  box-sizing: content-box;
+  height: unset;
+  padding: 0.25em 0.25em;
+  color: #000;
+  border: 0;
+  border-radius: 0.25rem;
+  opacity: .5;
+}
+.upper-layer{
+  height: 30px;
+}
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: fit-content;
+  pointer-events: auto;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 0.3rem;
+  outline: 0;
+}
+.popover {
+  width: 130px;
+}
+.popover .popover-arrow::after, .popover .popover-arrow::before {
+  position: absolute;
+  display: block;
+  content: "";
+  border-color: transparent;
+  border-style: solid;
+}
+.popover-body {
+  padding: 10px 8px;
+  color: #212529;
+}
+.btn-close:focus {
+  outline: 0;
+  box-shadow: unset;
+  opacity: 1;
+}
+/* .ppc-amf{
+  display: none;
+  align-items: center;
+  margin-bottom: 10px;
+  
+} */
+
 
 @media screen and (max-width: 480px) {
     .profilePage-main-con-top {
@@ -82,4 +133,10 @@
         flex-direction: column;
         justify-content: space-around;
     }
+    /* .ppc-amf{
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      
+    } */
 }

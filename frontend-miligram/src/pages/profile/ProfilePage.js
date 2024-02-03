@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import "./profilepage.css";
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, OverlayTrigger, Popover } from "react-bootstrap";
+import {
+  faEllipsis,
+  faPenToSquare,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ProfilePage() {
   const [show, setShow] = useState(false);
@@ -62,7 +68,7 @@ function ProfilePage() {
       <div className="container my-3">
         <hr />
       </div>
-      <div className="profile-gallery row g-4">
+      <div className="profile-gallery row g-4 mb-3">
         <div className="col-md-4 col-sm-12">
           <div
             className="card"
@@ -96,10 +102,72 @@ function ProfilePage() {
         </div>
       </div>
 
-      <Modal show={show} onHide={handleClose} className="modal" size="lg">
-        <Modal.Header closeButton></Modal.Header>
-        <div className="container row">
+      {/* POP UP */}
+      <Modal
+        show={show}
+        onHide={handleClose}
+        className="modal"
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        {/* Modal header section */}
+        <div className="upper-layer d-flex justify-content-end align-items-center">
+          <div className="col-6 d-flex align-items-center justify-content-end">
+            <OverlayTrigger
+              trigger="click"
+              placement="bottom"
+              overlay={
+                <Popover id={`popover-positioned-bottom`}>
+                  <Popover.Body>
+                    <div
+                      className="d-flex align-items-center justify-content-around cursor-pointer"
+                      role="button"
+                    >
+                      <FontAwesomeIcon
+                        icon={faPenToSquare}
+                        className="text-black-50"
+                      />
+                      <div style={{ width: "70px" }}>Edit Post</div>
+                    </div>
+                    <div
+                      className="d-flex align-items-center justify-content-around cursor-pointer"
+                      role="button"
+                    >
+                      <FontAwesomeIcon
+                        icon={faTrash}
+                        className="text-black-50"
+                      />
+                      <div style={{ width: "70px" }}>Delete Post</div>
+                    </div>
+                  </Popover.Body>
+                </Popover>
+              }
+            >
+              <span className="px-2 text-black-50">
+                <FontAwesomeIcon icon={faEllipsis} size="lg" role="button" />
+              </span>
+            </OverlayTrigger>
+          </div>
+          <Modal.Header closeButton></Modal.Header>
+        </div>
+        <div className="container row mb-2">
           <div className="col-md-6">
+            {/*  */}
+            <div className="col-6 d-flex align-items-center d-md-none mb-2 ">
+              <div className="profile-pic-con p-1 ">
+                <img
+                  className="profile-pic"
+                  alt="Profile pic"
+                  src="https://images.unsplash.com/photo-1576526625665-849fbc418224?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                />
+              </div>
+              <div className="profile-info">
+                <h6 className="profile-name"> Adarsh</h6>
+                <p className="profile-description text-muted">Location</p>
+              </div>
+            </div>
+            {/*  */}
             <div
               id="carouselExampleControlsNoTouching"
               className="carousel slide"
@@ -107,13 +175,25 @@ function ProfilePage() {
             >
               <div className="carousel-inner mb-3 rounded">
                 <div className="carousel-item active">
-                  <img src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="d-block w-100" alt="..." />
+                  <img
+                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    className="d-block w-100"
+                    alt="Scenery"
+                  />
                 </div>
                 <div className="carousel-item">
-                  <img src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="d-block w-100" alt="..." />
+                  <img
+                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    className="d-block w-100"
+                    alt="Scenery"
+                  />
                 </div>
                 <div className="carousel-item">
-                  <img src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" className="d-block w-100" alt="..." />
+                  <img
+                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    className="d-block w-100"
+                    alt="Scenery"
+                  />
                 </div>
               </div>
               <button
@@ -142,7 +222,53 @@ function ProfilePage() {
               </button>
             </div>
           </div>
-          <div className="col-md-6">Right container</div>
+          {/* Right section */}
+          <div className="col-md-6">
+            <div className="row">
+              <div className="col-6 d-none d-md-flex align-items-center d-none d-sm-flex">
+                <div className="profile-pic-con p-1">
+                  <img
+                    className="profile-pic"
+                    alt="Profile pic"
+                    src="https://images.unsplash.com/photo-1576526625665-849fbc418224?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  />
+                </div>
+                <div className="profile-info">
+                  <h6 className="profile-name"> Adarsh</h6>
+                  <p className="profile-description text-muted">Location</p>
+                </div>
+              </div>
+            </div>
+            <div className="card-img p-2">
+              <div className="card-foot-timeline text-muted mb-1">
+                <p style={{ margin: "0px", fontSize: "13px" }}>2h ago</p>
+              </div>
+              <p className="mb-1">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Temporibus, ad quae praesentium mollitia tempore cumque
+                necessitatibus cum sapiente neque laborum.
+              </p>
+            </div>
+            <div className="py-2 d-flex flex-column">
+              <div className="post-icons px-1 pb-3">
+                <i
+                  className="fa-regular fa-heart fa-lg"
+                  style={{ color: "#000000" }}
+                ></i>
+                <i
+                  className="fa-regular fa-comment fa-lg"
+                  style={{ color: "#000000" }}
+                ></i>
+                <i
+                  className="fa-regular fa-paper-plane fa-lg"
+                  style={{ color: "#000000" }}
+                ></i>
+              </div>
+              <div className="px-1">
+                <h6 style={{ margin: "0px" }}>121 Likes</h6>
+              </div>
+            </div>
+          </div>
         </div>
       </Modal>
     </div>
