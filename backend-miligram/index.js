@@ -2,7 +2,7 @@ var express = require("express");
 var cors = require("cors");
 var mongoose = require("mongoose");
 var { MONGODB_URL } = require("./config");
-var userModels = require('./models/user_model');
+var userModel = require('./models/user_model');
 var routes = require('./routes/index') 
 
 const PORT = 5000;

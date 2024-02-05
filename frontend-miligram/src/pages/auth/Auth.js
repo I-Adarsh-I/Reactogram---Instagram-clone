@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import "./auth.css";
 import socialDesktop from "../../Assets/social-desktop.PNG";
 import socialMobile from "../../Assets/social-mobile.PNG";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 
 function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -11,18 +14,57 @@ function Auth() {
     setIsSignUp((prevIsSignUp) => !prevIsSignUp);
   };
 
-  const {register, handleSubmit, formState:{ errors }} = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const formSubmit = (data) => {
-    console.log(data)
-  }
+    console.log(data);
+  };
+
+  const [number, setNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullname, setFullname] = useState("");
+
+  const userSignUpHandler = async() => {
+    try {
+      const resp = await axios.post('http://localhost:5000/signup',{
+        number,
+        fullname,
+        email,
+        password
+      })
+      if(resp.status === 200) {
+        toast.success(resp.data.message)
+      }else if(resp.status === 404){
+        console.log(resp.data.message)
+        toast.error(resp.data.message)
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Internal server error");
+      }
+      // console.error(err);
+    }
+  };
 
   return (
     <div className="container auth-main-container">
+            <ToastContainer autoClose={5000} />
+      
       <div className="row">
         <div className="col-md-7">
-          <img src={socialDesktop} alt="Miligram relatable content" className="auth-img-desk"/>
-          <img src={socialMobile} alt="Logo" className="auth-img-mob"/>
+          <img
+            src={socialDesktop}
+            alt="Miligram relatable content"
+            className="auth-img-desk"
+          />
+          <img src={socialMobile} alt="Logo" className="auth-img-mob" />
         </div>
         <div className="col-md-5">
           <div className="log-main-con p-4 bg-body rounded">
@@ -30,48 +72,97 @@ function Auth() {
               {!isSignUp ? <h3>Login</h3> : <h3>Sign Up</h3>}
             </div>
             <div className="auth-form-con">
-              <form className="main-auth-form-con" onSubmit={handleSubmit(formSubmit)}>
+              <form
+                className="main-auth-form-con"
+                onSubmit={handleSubmit(formSubmit)}
+              >
                 {isSignUp && (
                   <>
                     <input
-                      type="number"
-                      {...register("number", {required: true})}
+                      type="text"
+                      {...register("number", { required: true })}
                       id="number"
                       placeholder="Contact no."
                       className="auth-inp"
+                      value={number}
+                      onChange={(e) => setNumber(e.target.value)}
                     />
-                    {errors.number && <span style={{color:'red', fontSize:'14px'}}>Please enter a valid Phone number</span>}
+                    {errors.number && (
+                      <span style={{ color: "red", fontSize: "14px" }}>
+                        Please enter a valid Phone number
+                      </span>
+                    )}
                     <input
                       type="text"
-                      {...register("full_name", {required:true})}
+                      {...register("full_name", { required: true })}
                       id="full_name"
                       className="auth-inp"
                       placeholder="Full name"
+                      value={fullname}
+                      onChange={(e) => setFullname(e.target.value)}
                     />
-                    {errors.full_name && <span style={{color:'red', fontSize:'14px'}}>This field is required</span>}
+                    {errors.full_name && (
+                      <span style={{ color: "red", fontSize: "14px" }}>
+                        This field is required
+                      </span>
+                    )}
                   </>
                 )}
 
                 <input
                   type="email"
-                  name="email"
+                  {...register("email", { required: true })}
                   id="email"
-                  placeholder={ isSignUp ? 'Email' : 'Email, Phone number or Username'}
+                  placeholder={
+                    isSignUp ? "Email" : "Email, Phone number or Username"
+                  }
                   className="auth-inp"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
+                {errors.email && (
+                  <span style={{ color: "red", fontSize: "14px" }}>
+                    Email field cannot be empty
+                  </span>
+                )}
                 <input
                   type="password"
-                  name="password"
+                  {...register("password", { required: true })}
                   id="password"
                   placeholder="Password"
                   className="auth-inp"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
-                <div style={{display:'flex', gap:"10px", fontSize:" 14px"}}>
-                <input type="checkbox" name="rememberMe" id="rememberMe"/>
-                <label htmlFor="rememberMe">Remember Me</label>
+                {errors.password && (
+                  <span style={{ color: "red", fontSize: "14px" }}>
+                    Please Enter your password
+                  </span>
+                )}
+                <div
+                  style={{ display: "flex", gap: "10px", fontSize: " 14px" }}
+                >
+                  <input type="checkbox" name="rememberMe" id="rememberMe" />
+                  <label htmlFor="rememberMe">Remember Me</label>
                 </div>
                 {/* <button className="btn btn-primary auth-submit-btn">{!isSignUp ? 'Login' : 'Signup'} </button> */}
-                {!isSignUp ? <button className="btn btn-primary auth-submit-btn" type="submit">Login</button> : <button className="btn btn-primary auth-submit-btn" type="submit">Sign Up</button>}
+                {!isSignUp ? (
+                  <button
+                    className="btn btn-primary auth-submit-btn"
+                    type="submit"
+                    
+                  >
+                    Login
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-primary auth-submit-btn"
+                    type="submit"
+                    onClick={userSignUpHandler}
+                  >
+                    Sign Up
+                  </button>
+                )}
                 {!isSignUp ? (
                   <p className="log-opt-para">
                     Don't have an account?{" "}
