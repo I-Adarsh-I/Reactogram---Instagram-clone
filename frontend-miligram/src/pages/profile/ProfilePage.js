@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./profilepage.css";
 import { Button, Modal, OverlayTrigger, Popover } from "react-bootstrap";
 import {
+  faCloudArrowUp,
   faEllipsis,
   faPenToSquare,
   faTrash,
@@ -10,9 +11,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function ProfilePage() {
   const [show, setShow] = useState(false);
+  const [showPostUp, setShowPostUp] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const handleClosePostUp = () => setShowPostUp(false);
+  const handleShowPostUp = () => setShowPostUp(true);
 
   return (
     <div className="container main-profile-page card mt-3">
@@ -58,6 +62,7 @@ function ProfilePage() {
               <button
                 className="btn btn-outline-secondary shadow-sm opt-btn"
                 shadow-sm
+                onClick={handleShowPostUp}
               >
                 Upload post
               </button>
@@ -267,6 +272,78 @@ function ProfilePage() {
               <div className="px-1">
                 <h6 style={{ margin: "0px" }}>121 Likes</h6>
               </div>
+            </div>
+          </div>
+        </div>
+      </Modal>
+
+      {/* POP UP POST UPLOAD*/}
+      <Modal
+        show={showPostUp}
+        onHide={handleClosePostUp}
+        className="modal"
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        {/* Modal header section */}
+        <div className="upper-layer d-flex justify-content-between align-items-center px-4 my-2">
+          <div className="col-6 d-flex align-items-center justify-content-start">
+            <span className="w-100 fw-bold">Upload Post</span>
+          </div>
+          <Modal.Header closeButton></Modal.Header>
+        </div>
+        <div className="container row mb-3">
+          {/* Left Section */}
+          <div
+            className="col-md-6 upload-post-box d-flex flex-column justify-content-center align-items-center"
+            role="button"
+          >
+            <div className="formbold-mb-5 formbold-file-input">
+              <input type="file" name="file" id="file" />
+              <label for="file">
+                <div className="">
+                  <FontAwesomeIcon
+                    icon={faCloudArrowUp}
+                    className="mb-2"
+                    style={{
+                      color: "lightgray",
+                      height: "50px",
+                      width: "50px",
+                    }}
+                  />
+                  <div className="upload-post-text w-100">
+                    <p className="m-0 text-nowrap">
+                      <a className="upload-post-text link-offset-2 link-underline text-decoration-none ">
+                        Upload media from device
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+          {/* Right section */}
+          <div className="col-md-6">
+            <form className="mb-5">
+              <div className="mb-3">
+                <textarea
+                  placeholder="Add caption"
+                  className="form-control upload-media"
+                  id="exampleFormControlTextarea1"
+                  rows="3"
+                ></textarea>
+              </div>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  placeholder="Location"
+                  className="form-control upload-media"
+                />
+              </div>
+            </form>
+            <div className="post-btn d-flex justify-content-end">
+              <button className="btn btn-primary">Post</button>
             </div>
           </div>
         </div>
