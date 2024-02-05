@@ -37,7 +37,7 @@ function Auth() {
                       type="number"
                       {...register("number", {required: true})}
                       id="number"
-                      placeholder="123456"
+                      placeholder="Contact no."
                       className="auth-inp"
                     />
                     {errors.number && <span style={{color:'red', fontSize:'14px'}}>Please enter a valid Phone number</span>}
