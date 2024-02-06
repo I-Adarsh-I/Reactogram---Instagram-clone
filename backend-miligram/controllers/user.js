@@ -45,7 +45,7 @@ module.exports.loginHandler = async (req, res) => {
       return res.status(401).json({ error: "Password is incorrect" });
     }
 
-    const token = jwt.sign({ email: existingUser.email }, SECRET_KEY, {
+    const token = jwt.sign({ _id:existingUser._id, email: existingUser.email }, SECRET_KEY, {
       expiresIn: "1d",
     });
     res.cookie("User token", token, {

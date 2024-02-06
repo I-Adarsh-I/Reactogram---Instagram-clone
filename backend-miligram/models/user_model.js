@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
   fullname: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  profileImg: { type: String, default:'https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png' }
+  profileImg: {
+    type: String,
+    default: "https://www.iconpacks.net/icons/2/free-user-icon-3296-thumb.png",
+  },
 });
 
 const userModel = mongoose.model("User", userSchema);

@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
 import "./profilepage.css";
 import { Button, Modal, OverlayTrigger, Popover } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
 import {
   faCloudArrowUp,
   faEllipsis,
@@ -17,6 +20,30 @@ function ProfilePage() {
   const handleShow = () => setShow(true);
   const handleClosePostUp = () => setShowPostUp(false);
   const handleShowPostUp = () => setShowPostUp(true);
+
+  const navigate = useNavigate();
+
+  axios.defaults.withCredentials = true;
+
+  const fetchData = async() => {
+    try {
+      const resp = await axios.get('http://localhost:5000/profile')
+      if(resp.status !== 200){
+        navigate('/')
+      }
+    } catch (err) {
+      if (err.response && err.response.status === 401) {
+        toast.error(err.response.data.error)
+        navigate("/");
+      } else {
+        console.error("Error occurred:", err);
+      }
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  },[])
 
   return (
     <div className="container main-profile-page card mt-3">
@@ -348,6 +375,7 @@ function ProfilePage() {
           </div>
         </div>
       </Modal>
+      <ToastContainer autoClose={5000} />
     </div>
   );
 }
