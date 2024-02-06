@@ -7,8 +7,13 @@ var routes = require('./routes/index')
 
 const PORT = 5000;
 const app = express();
+const corsConfiguration = {
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  credentials: true
+}
 
-app.use(cors()); // It is a middleware which is used by app to communicate to another port - (Cross Origin Resource Sharing)
+app.use(cors(corsConfiguration)); // It is a middleware which is used by app to communicate to another port - (Cross Origin Resource Sharing)
 app.use(express.json()); // It is a middleware which converts the request and response to JSON format
 
 app.use(routes)

@@ -46,6 +46,9 @@
 }
 .modal-header{
   border-bottom: none;
+
+}
+.header-postup{
   margin-right: -20px;
 }
 .btn-close {

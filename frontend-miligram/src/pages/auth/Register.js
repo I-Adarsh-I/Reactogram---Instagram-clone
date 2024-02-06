@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from "react-router-dom";
 import "./auth.css";
 import socialDesktop from "../../Assets/social-desktop.PNG";
 import socialMobile from "../../Assets/social-mobile.PNG";
@@ -8,38 +8,42 @@ import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
 import axios from "axios";
 
-function Auth() {
+function Register() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  axios.defaults.withCredentials = true;
-  
   const navigate = useNavigate();
+  
+  axios.defaults.withCredentials = true;
 
+  const [number, setNumber] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullname, setFullname] = useState("");
 
-  const userLoginHandler = async (e) => {
-    e.preventDefault();
+  const userSignUpHandler = async (e) => {
+    e.preventDefault()
     try {
-      const resp = await axios.post("http://localhost:5000/login", {
+      const resp = await axios.post("http://localhost:5000/signup", {
+        number,
+        fullname,
         email,
         password,
       });
       if (resp.status === 200) {
         toast.success(resp.data.message);
+        navigate('/');
       } else if (resp.status === 404) {
-        toast.error(resp.data.error);
-      } else if (resp.status === 401) {
-        toast.error(resp.data.error);
+        console.log(resp.data.message);
+        toast.error(resp.data.message);
       }
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        toast.error(err.response.data.error);
-      } else if(err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
         toast.error("Internal server error");
       }
     }
@@ -61,18 +65,47 @@ function Auth() {
         <div className="col-md-5">
           <div className="log-main-con p-4 bg-body rounded">
             <div className="login-main-con-head">
-              <h3>Login</h3>
+               <h3>Sign Up</h3>
             </div>
             <div className="auth-form-con">
               <form
                 className="main-auth-form-con"
-                onSubmit={handleSubmit(userLoginHandler)}
+                onSubmit={handleSubmit(userSignUpHandler)}
               >
+                <input
+                  type="text"
+                  {...register("number", { required: true })}
+                  id="number"
+                  placeholder="Contact no."
+                  className="auth-inp"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                />
+                {errors.number && (
+                  <span style={{ color: "red", fontSize: "14px" }}>
+                    Please enter a valid Phone number
+                  </span>
+                )}
+                <input
+                  type="text"
+                  {...register("full_name", { required: true })}
+                  id="full_name"
+                  className="auth-inp"
+                  placeholder="Full name"
+                  value={fullname}
+                  onChange={(e) => setFullname(e.target.value)}
+                />
+                {errors.full_name && (
+                  <span style={{ color: "red", fontSize: "14px" }}>
+                    This field is required
+                  </span>
+                )}
+
                 <input
                   type="email"
                   {...register("email", { required: true })}
                   id="email"
-                  placeholder="Email, Phone number or Username"
+                  placeholder='email'
                   className="auth-inp"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -105,14 +138,15 @@ function Auth() {
                 <button
                   className="btn btn-primary auth-submit-btn"
                   type="submit"
-                  onClick={userLoginHandler}
+                  onClick={userSignUpHandler}
                 >
-                  Login
+                  Sign Up
                 </button>
+
                 <p className="log-opt-para">
-                  Don't have an account?{" "}
-                  <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate('/register')}>
-                    Register
+                  Already have an account?{" "}
+                  <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate('/')}>
+                    Login
                   </span>
                 </p>
               </form>
@@ -124,4 +158,4 @@ function Auth() {
   );
 }
 
-export default Auth;
+export default Register;

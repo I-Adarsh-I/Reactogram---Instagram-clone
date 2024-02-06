@@ -291,7 +291,7 @@ function ProfilePage() {
           <div className="col-6 d-flex align-items-center justify-content-start">
             <span className="w-100 fw-bold">Upload Post</span>
           </div>
-          <Modal.Header closeButton></Modal.Header>
+          <Modal.Header className="header-postup" closeButton></Modal.Header>
         </div>
         <div className="container row mb-3">
           {/* Left Section */}
