@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom'
-import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./profilepage.css";
 import { Button, Modal, OverlayTrigger, Popover } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,10 +11,14 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { BASE_API } from "../../config";
 
 function ProfilePage() {
   const [show, setShow] = useState(false);
   const [showPostUp, setShowPostUp] = useState(false);
+  const [image, setImage] = useState({ preview: "", data: "" });
+  const [caption, setCaption] = useState("");
+  const [location, setLocation] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -23,28 +27,97 @@ function ProfilePage() {
 
   const navigate = useNavigate();
 
+  const handleFileSelect = (e) => {
+    const img = {
+      preview: URL.createObjectURL(e.target.files[0]),
+      data: e.target.files[0],
+    };
+    setImage(img);
+    console.log(img);
+  };
+
+  const handleFileUpload = async () => {
+    try {
+      let formData = new FormData();
+      formData.append("file", image.data);
+  
+      const resp = await axios.post(`${BASE_API}/upload`, formData);
+      // toast.success("Post created successfully");
+      return resp;
+    } catch (err) {
+      console.error("Error uploading file: ", err);
+      throw err; // Rethrow the error for the caller to handle
+    }
+  };  
+
+  const addPost = async () => {
+      const imgRes = await handleFileUpload();
+  
+      const token = document.cookie.replace(
+        /(?:(?:^|.*;\s*)User\s*token\s*=\s*([^;]*).*$)/,
+        "$1"
+      );
+  
+      if (!token) {
+        console.error("Token not found in cookies");
+        return;
+      }
+  
+      if (image.preview === "") {
+        toast.warn("Cannot create a post without image");
+        return;
+      } else if (caption === "") {
+        toast.warn("Cannot create a post without caption");
+        return;
+      } else if (location === "") {
+        toast.warn("Cannot create a post without location");
+        return;
+      }
+  
+      const request = {
+        description: caption,
+        location: location,
+        image: `${BASE_API}/${imgRes.data.filename}`,
+      };
+  
+      const resp = await axios.post(`${BASE_API}/createpost`, request, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (resp.status === 201) {
+        toast.success(resp.data.message)
+        navigate("/posts");
+      } else {
+        toast.error("Failed to create post");
+      }
+  
+      console.log(resp);
+  };
+
   axios.defaults.withCredentials = true;
 
-  const fetchData = async() => {
+  const fetchData = async () => {
     try {
-      const resp = await axios.get('http://localhost:5000/profile')
-      if(resp.status !== 200){
-        navigate('/')
+      const resp = await axios.get(`${BASE_API}/profile`);
+      if (resp.status !== 200) {
+        navigate("/");
       }
     } catch (err) {
       if (err.response && err.response.status === 401) {
-        toast.error(err.response.data.error)
+        toast.error(err.response.data.error);
         navigate("/");
       } else {
         console.error("Error occurred:", err);
       }
     }
-  }
+  };
 
   useEffect(() => {
     fetchData();
-  },[])
-
+  }, []);
   return (
     <div className="container main-profile-page card mt-3">
       <div className="profilePage-main-con-top container">
@@ -323,32 +396,50 @@ function ProfilePage() {
         <div className="container row mb-3">
           {/* Left Section */}
           <div
-            className="col-md-6 upload-post-box d-flex flex-column justify-content-center align-items-center"
+            className="col-md-6 d-flex flex-column justify-content-center align-items-center"
             role="button"
           >
-            <div className="formbold-mb-5 formbold-file-input">
-              <input type="file" name="file" id="file" />
-              <label for="file">
-                <div className="">
-                  <FontAwesomeIcon
-                    icon={faCloudArrowUp}
-                    className="mb-2"
-                    style={{
-                      color: "lightgray",
-                      height: "50px",
-                      width: "50px",
-                    }}
-                  />
-                  <div className="upload-post-text w-100">
-                    <p className="m-0 text-nowrap">
-                      <a className="upload-post-text link-offset-2 link-underline text-decoration-none ">
-                        Upload media from device
-                      </a>
-                    </p>
+            {image.preview ? (
+              <>
+                <div className="uploaded-img-container">
+                  <img src={image.preview} className="user-uploaded-img" />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="upload-post-box">
+                  <div className="formbold-mb-5 formbold-file-input">
+                    <input
+                      type="file"
+                      name="file"
+                      id="file"
+                      accept=".jpg, .png, .jpeg"
+                      onChange={handleFileSelect}
+                    />
+                    <label for="file">
+                      <div className="">
+                        <FontAwesomeIcon
+                          icon={faCloudArrowUp}
+                          className="mb-2"
+                          style={{
+                            color: "lightgray",
+                            height: "50px",
+                            width: "50px",
+                          }}
+                        />
+                        <div className="upload-post-text w-100">
+                          <p className="m-0 text-nowrap">
+                            <a className="upload-post-text link-offset-2 link-underline text-decoration-none ">
+                              Upload media from device
+                            </a>
+                          </p>
+                        </div>
+                      </div>
+                    </label>
                   </div>
                 </div>
-              </label>
-            </div>
+              </>
+            )}
           </div>
           {/* Right section */}
           <div className="col-md-6">
@@ -358,6 +449,8 @@ function ProfilePage() {
                   placeholder="Add caption"
                   className="form-control upload-media"
                   id="exampleFormControlTextarea1"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
                   rows="3"
                 ></textarea>
               </div>
@@ -365,12 +458,16 @@ function ProfilePage() {
                 <input
                   type="text"
                   placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
                   className="form-control upload-media"
                 />
               </div>
             </form>
             <div className="post-btn d-flex justify-content-end">
-              <button className="btn btn-primary">Post</button>
+              <button className="btn btn-primary" onClick={addPost}>
+                Post
+              </button>
             </div>
           </div>
         </div>

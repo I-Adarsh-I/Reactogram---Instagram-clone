@@ -1,10 +1,40 @@
 import React from "react";
+import { useDispatch, useSelector } from "react-redux";
 import "./navbar.css";
 import Logo from "../../Assets/Logo.png";
 import { useNavigate, Link } from "react-router-dom";
 import { Dropdown } from "react-bootstrap";
+import axios from "axios";
+import { BASE_API } from "../../config";
 
 function Navbar() {
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const logoutHandler = async () => {
+    try {
+      const resp = await axios.post(`${BASE_API}/logout`);
+      if (resp.status === 200) {
+        console.log(resp.data.message);
+        dispatch({type: "LOGIN_ERROR"})
+        navigate("/");
+      } else {
+        console.error("Internal server error");
+      }
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        console.error(err.response.data.error);
+      } else {
+        // Handle other errors
+        console.error("Error during logout:", err);
+      }
+    }
+  };
+
+  const user = useSelector( state => state.UserReducer)
+  console.log(user.user.email)
+
   return (
     <nav className="navbar navbar-light bg-light shadow-sm">
       <div className="container container-fluid">
@@ -13,6 +43,7 @@ function Navbar() {
             <img src={Logo} alt="Reactogram" className="nav-logo" />
           </Link>
         </div>
+        {user.user.email && (
         <form className="d-flex navbar-form">
           <input
             className="form-control me-2"
@@ -52,23 +83,23 @@ function Navbar() {
                     className="profile-dropdown"
                     id="dropdown-basic"
                   >
-                    <Link to={"/profile"} className="nav-link">
-                      <i
-                        className="fa-regular fa-user fa-lg"
-                        style={{ color: "#000000" }}
-                      ></i>
-                    </Link>
+                    <i
+                      className="fa-regular fa-user fa-lg"
+                      style={{ color: "#000000" }}
+                    ></i>
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
-                    <Dropdown.Item href="#/action-1">Profile</Dropdown.Item>
-                    <Dropdown.Item href="#/action-2">Logout</Dropdown.Item>
+                    <Dropdown.Item href="/profile"> Profile</Dropdown.Item>
+                    <Dropdown.Item onClick={logoutHandler}>
+                      Logout
+                    </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </li>
             </ul>
           </div>
-        </form>
+        </form>)}
       </div>
     </nav>
   );

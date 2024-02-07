@@ -8,6 +8,7 @@ var userModel = require("../models/user_model");
 var cookieParser = require("cookie-parser");
 var { SECRET_KEY } = require("../config");
 
+
 module.exports.signUpHandler = async (req, res) => {
   const { number, fullname, email, password } = req.body;
   try {
@@ -52,9 +53,20 @@ module.exports.loginHandler = async (req, res) => {
       sameSite: "strict",
       httpOnly: true,
     });
-    return res.status(200).json({ message: "User logged in successfully" });
+    return res.status(200).json({ message: "User logged in successfully", user: {existingUser} });
   } catch (err) {
     console.error("Error while logging in: ", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
+
+module.exports.logoutHandler = async(req,res) => {
+  try {
+    res.clearCookie("User token")
+    return res.status(200).json({message: "User logged out successfully"})
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ error: "Internal server error" });
+  }
+
+} 

@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { BASE_API } from "../../config";
 
 function Register() {
   const {
@@ -27,7 +28,7 @@ function Register() {
   const userSignUpHandler = async (e) => {
     e.preventDefault()
     try {
-      const resp = await axios.post("http://localhost:5000/signup", {
+      const resp = await axios.post(`${BASE_API}/signup`, {
         number,
         fullname,
         email,

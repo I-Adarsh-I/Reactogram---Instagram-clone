@@ -59,6 +59,9 @@
 .log-opt-para{
     font-size: 13px;
 }
+.spinner-grow {
+    margin: 0 10px 0 -20px; 
+}
 
 @media screen and (max-width: 480px){
     .auth-img-desk{

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom'
-import "./auth.css";
-import socialDesktop from "../../Assets/social-desktop.PNG";
-import socialMobile from "../../Assets/social-mobile.PNG";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
+import "./auth.css";
 import "react-toastify/dist/ReactToastify.css";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import socialDesktop from "../../Assets/social-desktop.PNG";
+import socialMobile from "../../Assets/social-mobile.PNG";
+import { BASE_API } from "../../config";
 
 function Auth() {
   const {
@@ -16,8 +18,11 @@ function Auth() {
   } = useForm();
 
   axios.defaults.withCredentials = true;
-  
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [loading, setLoading] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,21 +30,31 @@ function Auth() {
   const userLoginHandler = async (e) => {
     e.preventDefault();
     try {
-      const resp = await axios.post("http://localhost:5000/login", {
+      const resp = await axios.post(`${BASE_API}/login`, {
         email,
         password,
       });
+      console.log(resp.data.user.existingUser)
+      setLoading(true);
       if (resp.status === 200) {
+        setLoading(false);
         toast.success(resp.data.message);
+        dispatch({ type: 'LOGIN_SUCCESS', payload: resp.data.user.existingUser})
+        navigate('/profile')
       } else if (resp.status === 404) {
+        setLoading(false);
         toast.error(resp.data.error);
       } else if (resp.status === 401) {
+        setLoading(false);
         toast.error(resp.data.error);
       }
+      setEmail("");
+      setPassword("");
     } catch (err) {
+      setLoading(false);
       if (err.response && err.response.data && err.response.data.error) {
         toast.error(err.response.data.error);
-      } else if(err) {
+      } else if (err) {
         toast.error("Internal server error");
       }
     }
@@ -107,11 +122,22 @@ function Auth() {
                   type="submit"
                   onClick={userLoginHandler}
                 >
+                  {loading && (
+                    <div
+                      className="spinner-grow text-light spinner-grow-sm"
+                      role="status"
+                    >
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                  )}
                   Login
                 </button>
                 <p className="log-opt-para">
                   Don't have an account?{" "}
-                  <span style={{ color: "blue", cursor: "pointer" }} onClick={() => navigate('/register')}>
+                  <span
+                    style={{ color: "blue", cursor: "pointer" }}
+                    onClick={() => navigate("/register")}
+                  >
                     Register
                   </span>
                 </p>
