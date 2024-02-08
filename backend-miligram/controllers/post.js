@@ -66,7 +66,6 @@ module.exports.deletePost = async (req, res) => {
 
     if (postDel.author._id.toString() === req.user._id.toString()) {
       const deletedPost = await postModel.deleteOne({ _id: postDel._id });
-      res.status(201).json({ result: deletedPost });
       return res.status(200).json({ message: "Post deleted successfully" });
     } else {
       res
@@ -96,7 +95,7 @@ module.exports.likes = async (req, res) => {
     if(!like){
       res.status(400).json({error: "Post could not be found"})
     }else{
-      res.status(200).json({message: `Post liked by ${req.user.fullname}`})
+      res.status(200).json({message: `Post liked by ${req.user.fullname}`, user: <req className="user"></req>})
     }
     console.log("logging user in likes: ", req.user)
   } catch (err) {

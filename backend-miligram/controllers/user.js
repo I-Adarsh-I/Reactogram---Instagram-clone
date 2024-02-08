@@ -53,7 +53,7 @@ module.exports.loginHandler = async (req, res) => {
       sameSite: "strict",
       httpOnly: true,
     });
-    return res.status(200).json({ message: "User logged in successfully", user: {existingUser} });
+    return res.status(200).json({ message: "User logged in successfully", user: {existingUser}, token:{token} });
   } catch (err) {
     console.error("Error while logging in: ", err);
     return res.status(500).json({ error: "Internal server error" });

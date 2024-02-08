@@ -34,13 +34,12 @@ function Auth() {
         email,
         password,
       });
-      console.log(resp.data.user.existingUser)
       setLoading(true);
       if (resp.status === 200) {
         setLoading(false);
         toast.success(resp.data.message);
         dispatch({ type: 'LOGIN_SUCCESS', payload: resp.data.user.existingUser})
-        navigate('/profile')
+        navigate('/posts')
       } else if (resp.status === 404) {
         setLoading(false);
         toast.error(resp.data.error);

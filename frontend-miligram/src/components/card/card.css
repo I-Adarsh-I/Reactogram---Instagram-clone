@@ -20,3 +20,17 @@
     align-items: center;
     gap: 10px;
 }
+.per-card{
+    width: 40%;
+}
+
+@media screen and (max-width: 480px) {
+    .per-card{
+        width: 100%;
+    }
+}
+@media screen and (min-width: 480px) and (max-width: 767px) {
+    .per-card{
+        width: 70%;
+    }
+}

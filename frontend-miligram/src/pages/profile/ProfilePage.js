@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./profilepage.css";
-import { Button, Modal, OverlayTrigger, Popover } from "react-bootstrap";
+import { Modal, OverlayTrigger, Popover } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import {
   faCloudArrowUp,
@@ -12,6 +12,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { BASE_API } from "../../config";
+import { useSelector } from "react-redux";
+import { Dropdown } from "react-bootstrap";
 
 function ProfilePage() {
   const [show, setShow] = useState(false);
@@ -19,6 +21,8 @@ function ProfilePage() {
   const [image, setImage] = useState({ preview: "", data: "" });
   const [caption, setCaption] = useState("");
   const [location, setLocation] = useState("");
+  const [post, setPost] = useState([]);
+  const [postDetail, setPostDetail] = useState([]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -27,6 +31,9 @@ function ProfilePage() {
 
   const navigate = useNavigate();
 
+  const user = useSelector((state) => state.UserReducer);
+
+  //File select function
   const handleFileSelect = (e) => {
     const img = {
       preview: URL.createObjectURL(e.target.files[0]),
@@ -35,12 +42,12 @@ function ProfilePage() {
     setImage(img);
     console.log(img);
   };
-
+  // File upload function
   const handleFileUpload = async () => {
     try {
       let formData = new FormData();
       formData.append("file", image.data);
-  
+
       const resp = await axios.post(`${BASE_API}/upload`, formData);
       // toast.success("Post created successfully");
       return resp;
@@ -48,53 +55,80 @@ function ProfilePage() {
       console.error("Error uploading file: ", err);
       throw err; // Rethrow the error for the caller to handle
     }
-  };  
+  };
 
+  // Show details of user in image pop up
+  const showImgDetails = (post) => {
+    handleShow();
+    setPostDetail(post);
+  };
+
+  // Create new post
   const addPost = async () => {
-      const imgRes = await handleFileUpload();
-  
-      const token = document.cookie.replace(
-        /(?:(?:^|.*;\s*)User\s*token\s*=\s*([^;]*).*$)/,
-        "$1"
-      );
-  
-      if (!token) {
-        console.error("Token not found in cookies");
-        return;
-      }
-  
-      if (image.preview === "") {
-        toast.warn("Cannot create a post without image");
-        return;
-      } else if (caption === "") {
-        toast.warn("Cannot create a post without caption");
-        return;
-      } else if (location === "") {
-        toast.warn("Cannot create a post without location");
-        return;
-      }
-  
-      const request = {
-        description: caption,
-        location: location,
-        image: `${BASE_API}/${imgRes.data.filename}`,
-      };
-  
-      const resp = await axios.post(`${BASE_API}/createpost`, request, {
+    const imgRes = await handleFileUpload();
+
+    const token = document.cookie.replace(
+      /(?:(?:^|.*;\s*)User\s*token\s*=\s*([^;]*).*$)/,
+      "$1"
+    );
+
+    if (!token) {
+      console.error("Token not found in cookies");
+      return;
+    }
+
+    if (image.preview === "") {
+      toast.warn("Cannot create a post without image");
+      return;
+    } else if (caption === "") {
+      toast.warn("Cannot create a post without caption");
+      return;
+    } else if (location === "") {
+      toast.warn("Cannot create a post without location");
+      return;
+    }
+
+    const request = {
+      description: caption,
+      location: location,
+      image: `${BASE_API}/files/${imgRes.data.filename}`,
+    };
+
+    const resp = await axios.post(`${BASE_API}/createpost`, request, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (resp.status === 201) {
+      toast.success(resp.data.message);
+      navigate("/posts");
+    } else {
+      toast.error("Failed to create post");
+    }
+
+    console.log(resp);
+  };
+
+  //Delete Post
+  const handleDeletePost = async (postId) => {
+    const resultString = localStorage.getItem('Profile')
+    const result = JSON.parse(resultString);
+    const token = result.token
+
+    try {
+      const resp = await axios.delete(`${BASE_API}/deletepost/${postId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-  
-      if (resp.status === 201) {
-        toast.success(resp.data.message)
-        navigate("/posts");
-      } else {
-        toast.error("Failed to create post");
-      }
-  
-      console.log(resp);
+      handleClose()
+      myGalleryPosts();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   axios.defaults.withCredentials = true;
@@ -103,6 +137,8 @@ function ProfilePage() {
     try {
       const resp = await axios.get(`${BASE_API}/profile`);
       if (resp.status !== 200) {
+        navigate("/");
+      } else if (resp.status === 400) {
         navigate("/");
       }
     } catch (err) {
@@ -115,9 +151,22 @@ function ProfilePage() {
     }
   };
 
+  const myGalleryPosts = async () => {
+    try {
+      const resp = await axios.get(`${BASE_API}/mygallery`);
+      if (resp.status === 200) {
+        setPost(resp.data.posts);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    myGalleryPosts();
   }, []);
+
   return (
     <div className="container main-profile-page card mt-3">
       <div className="profilePage-main-con-top container">
@@ -128,11 +177,11 @@ function ProfilePage() {
                 <img
                   className="profile-pic"
                   alt="Profile pic"
-                  src="https://images.unsplash.com/photo-1576526625665-849fbc418224?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  src={user.user.profileImg}
                 />
               </div>
               <div className="name-con">
-                <h3>Full name</h3>
+                <h3>{user.user.fullname}</h3>
                 <h5>@Username</h5>
               </div>
             </div>
@@ -141,7 +190,7 @@ function ProfilePage() {
           <div className="pp-t-r-con col-md-6 text-end">
             <div className="list-con">
               <div className="list-con-i">
-                <h3>83</h3>
+                <h3>{post.length}</h3>
                 <h6>posts</h6>
               </div>
               <div className="seperator"></div>
@@ -174,37 +223,26 @@ function ProfilePage() {
         <hr />
       </div>
       <div className="profile-gallery row g-4 mb-3">
-        <div className="col-md-4 col-sm-12">
-          <div
-            className="card"
-            onClick={handleShow}
-            style={{ cursor: "pointer" }}
-          >
-            <img
-              className="gallery-pic w-100 rounded"
-              alt="Profile pic"
-              src="https://images.unsplash.com/photo-1494783367193-149034c05e8f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            />
-          </div>
-        </div>
-        <div className="col-md-4 col-sm-12 col-lg-4">
-          <div className="card">
-            <img
-              className="gallery-pic w-100 rounded"
-              alt="Profile pic"
-              src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            />
-          </div>
-        </div>
-        <div className="col-md-4 col-sm-12">
-          <div className="card">
-            <img
-              className="gallery-pic w-100 rounded"
-              alt="Profile pic"
-              src="https://images.unsplash.com/photo-1494783367193-149034c05e8f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            />
-          </div>
-        </div>
+        {post.map((post, index) => {
+          return (
+            <div
+              className="col-md-4 col-sm-12 d-flex align-items-center justify-content-center"
+              key={index}
+            >
+              <div
+                className="card"
+                onClick={() => showImgDetails(post)}
+                style={{ cursor: "pointer" }}
+              >
+                <img
+                  className="gallery-pic w-100 rounded"
+                  alt="Profile pic"
+                  src={post.image}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* POP UP */}
@@ -219,52 +257,43 @@ function ProfilePage() {
         {/* Modal header section */}
         <div className="upper-layer d-flex justify-content-end align-items-center">
           <div className="col-6 d-flex align-items-center justify-content-end">
-            <OverlayTrigger
-              trigger="click"
-              placement="bottom"
-              overlay={
-                <Popover id={`popover-positioned-bottom`}>
-                  <Popover.Body>
-                    <div
-                      className="d-flex align-items-center justify-content-around cursor-pointer"
-                      role="button"
-                    >
-                      <FontAwesomeIcon
-                        icon={faPenToSquare}
-                        className="text-black-50"
-                      />
-                      <div style={{ width: "70px" }}>Edit Post</div>
-                    </div>
-                    <div
-                      className="d-flex align-items-center justify-content-around cursor-pointer"
-                      role="button"
-                    >
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        className="text-black-50"
-                      />
-                      <div style={{ width: "70px" }}>Delete Post</div>
-                    </div>
-                  </Popover.Body>
-                </Popover>
-              }
-            >
-              <span className="px-2 text-black-50">
-                <FontAwesomeIcon icon={faEllipsis} size="lg" role="button" />
-              </span>
-            </OverlayTrigger>
+            <Dropdown>
+              <Dropdown.Toggle className="profile-dropdown" id="dropdown-basic">
+                <span className="px-2 text-black-50">
+                  <FontAwesomeIcon icon={faEllipsis} size="lg" role="button" />
+                </span>
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item href="/profile">
+                  <FontAwesomeIcon
+                    icon={faPenToSquare}
+                    className="text-black-50"
+                  />{" "}
+                  Edit Post
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleDeletePost(postDetail._id)}>
+                  <FontAwesomeIcon icon={faTrash} className="text-black-50"/>
+                  Delete Post
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
           </div>
           <Modal.Header closeButton></Modal.Header>
         </div>
         <div className="container row mb-2">
-          <div className="col-md-6">
+          <div className="col-md-6 d-flex justify-content-center flex-column">
             {/*  */}
             <div className="col-6 d-flex align-items-center d-md-none mb-2 ">
               <div className="profile-pic-con p-1 ">
                 <img
                   className="profile-pic"
                   alt="Profile pic"
-                  src="https://images.unsplash.com/photo-1576526625665-849fbc418224?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  src={
+                    postDetail.author
+                      ? postDetail.author.profileImg
+                      : user.user.profileImg
+                  }
                 />
               </div>
               <div className="profile-info">
@@ -281,21 +310,7 @@ function ProfilePage() {
               <div className="carousel-inner mb-3 rounded">
                 <div className="carousel-item active">
                   <img
-                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    className="d-block w-100"
-                    alt="Scenery"
-                  />
-                </div>
-                <div className="carousel-item">
-                  <img
-                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    className="d-block w-100"
-                    alt="Scenery"
-                  />
-                </div>
-                <div className="carousel-item">
-                  <img
-                    src="https://images.unsplash.com/reserve/bOvf94dPRxWu0u3QsPjF_tree.jpg?q=80&w=1776&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src={postDetail.image}
                     className="d-block w-100"
                     alt="Scenery"
                   />
@@ -335,12 +350,22 @@ function ProfilePage() {
                   <img
                     className="profile-pic"
                     alt="Profile pic"
-                    src="https://images.unsplash.com/photo-1576526625665-849fbc418224?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    src={
+                      postDetail.author
+                        ? postDetail.author.profileImg
+                        : user.user.profileImg
+                    }
                   />
                 </div>
                 <div className="profile-info">
-                  <h6 className="profile-name"> Adarsh</h6>
-                  <p className="profile-description text-muted">Location</p>
+                  <h6 className="profile-name">
+                    {postDetail.author
+                      ? postDetail.author.fullname
+                      : "Loading..."}
+                  </h6>
+                  <p className="profile-description text-muted">
+                    {postDetail.location}
+                  </p>
                 </div>
               </div>
             </div>
@@ -348,11 +373,7 @@ function ProfilePage() {
               <div className="card-foot-timeline text-muted mb-1">
                 <p style={{ margin: "0px", fontSize: "13px" }}>2h ago</p>
               </div>
-              <p className="mb-1">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Temporibus, ad quae praesentium mollitia tempore cumque
-                necessitatibus cum sapiente neque laborum.
-              </p>
+              <p className="mb-1">{postDetail.description}</p>
             </div>
             <div className="py-2 d-flex flex-column">
               <div className="post-icons px-1 pb-3">
@@ -370,7 +391,9 @@ function ProfilePage() {
                 ></i>
               </div>
               <div className="px-1">
-                <h6 style={{ margin: "0px" }}>121 Likes</h6>
+                <h6 style={{ margin: "0px" }}>
+                  {postDetail.likes ? postDetail.likes.length : "0-"} Likes
+                </h6>
               </div>
             </div>
           </div>

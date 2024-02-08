@@ -33,7 +33,6 @@ function Navbar() {
   };
 
   const user = useSelector( state => state.UserReducer)
-  console.log(user.user.email)
 
   return (
     <nav className="navbar navbar-light bg-light shadow-sm">
@@ -43,7 +42,7 @@ function Navbar() {
             <img src={Logo} alt="Reactogram" className="nav-logo" />
           </Link>
         </div>
-        {user.user.email && (
+
         <form className="d-flex navbar-form">
           <input
             className="form-control me-2"
@@ -61,12 +60,12 @@ function Navbar() {
             <ul className="nav-links navbar-nav ">
               <li className="link-item">
                 {" "}
-                <a href="/" className="nav-link">
+                <Link to={'/posts'} className="nav-link">
                   <i
                     className="fa-solid fa-house fa-lg"
                     style={{ color: "#000000" }}
-                  ></i>
-                </a>
+                    ></i>
+                </Link>
               </li>
               <li className="link-item">
                 {" "}
@@ -99,7 +98,7 @@ function Navbar() {
               </li>
             </ul>
           </div>
-        </form>)}
+        </form>
       </div>
     </nav>
   );

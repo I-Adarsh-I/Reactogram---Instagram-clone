@@ -6,7 +6,7 @@ var router = express.Router();
 router.post('/signup', signUpHandler);
 router.post('/login', loginHandler);
 router.get('/profile', protectedRoutes, (req, res) => {
-    res.send('Profile page')
+    res.status(200).json({message: 'User logged in'})
 })
 router.post('/logout', logoutHandler)
 
