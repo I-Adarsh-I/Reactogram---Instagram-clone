@@ -1,10 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./card.css";
 import { formatDistanceToNow } from "date-fns";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSelector } from "react-redux";
 import { Dropdown } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   faPenToSquare,
   faTrash,
@@ -17,7 +19,10 @@ const formatTimeElapsed = (postedAt) => {
   const timeElapsed = formatDistanceToNow(postedDate, { addSuffix: true });
   return timeElapsed.replace(/^about\s/i, "");
 };
+
+//main function
 const Card = (props) => {
+
   const timeElapsed = formatTimeElapsed(props.propsData.postedAt);
 
   const user = useSelector((state) => state.UserReducer);
@@ -26,6 +31,8 @@ const Card = (props) => {
     await props.onDeletePost(postId)
   }
   
+  const [comment ,setComment] = useState(false);
+  //like functionality
   const likePost = async(postId) => {
     const resultString = localStorage.getItem('Profile')
     const result = JSON.parse(resultString);
@@ -40,19 +47,89 @@ const Card = (props) => {
           "Content-Type": "application/json",
         },
       })
-      console.log("User: ",resp);
       if(resp.status === 200){
         props.getAllPosts();
-        console.log('User liked your post')
       }else{
-        console.log(resp.data.error)
+        toast.error(resp.data.error)
       }
-      // console.log("id's are", postId, userId);
     } catch (err) {
+      toast.error(err.data.error)
       console.error(err);
     }
   }
-  console.log(props.propsData._id)
+
+  //unlike functionality
+  const unLikePost = async(postId) => {
+    const resultString = localStorage.getItem('Profile')
+    const result = JSON.parse(resultString);
+    const token = result.token
+
+    const request = {"postid": postId}
+
+    try {
+      const resp = await axios.put(`${BASE_API}/unlike`, request, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      if(resp.status === 200){
+        props.getAllPosts();
+      }else{
+        toast.error(resp.data.error)
+      }
+    } catch (err) {
+      toast.error(err.data.error)
+      console.error(err);
+    }
+  }
+  
+  // console.log(props.propsData._id)
+
+  //Like and unlike
+  const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    // Load the initial like/unlike state from the server when the component mounts
+    const fetchLikeState = async () => {
+      try {
+        const resp = await axios.get(`${BASE_API}/likenunlike/${props.propsData._id}/like-state`);
+        setIsLiked(resp.data.isLiked);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchLikeState(); // Fetch initial like state
+  }, [props.propsData._id]);
+
+  const likeAndUnlike = async () => {
+    try {
+      const resp = await axios.get(`${BASE_API}/likenunlike/${props.propsData._id}/like-state`);
+      const isAlreadyLiked = resp.data.isLiked;
+
+      if (!isAlreadyLiked) {
+        await likePost(props.propsData._id);
+        setIsLiked(true); 
+      } else {
+        await unLikePost(props.propsData._id);
+        setIsLiked(false); 
+      }
+
+      props.getAllPosts();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const commentBox = () => {
+    if(!comment){
+      setComment(true)
+    }else{
+      setComment(false)
+    }
+  }
+
 
   return (
     <div className="d-flex justify-content-center">
@@ -125,14 +202,23 @@ const Card = (props) => {
           </div>
           <div className="row py-2">
             <div className="col-8 post-icons px-4" >
-              <i
-                className="fa-regular fa-heart fa-lg"
-                style={{ color: "#000000" }}
-                onClick={() => likePost(props.propsData._id)}
-              ></i>
+            {isLiked ? (
+                <i
+                  className="fa-solid fa-heart fa-lg"
+                  style={{ color: "#cc0000" }}
+                  onClick={likeAndUnlike}
+                ></i>
+              ) : (
+                <i
+                  className="fa-regular fa-heart fa-lg"
+                  style={{ color: "#000000" }}
+                  onClick={likeAndUnlike}
+                ></i>
+              )}
               <i
                 className="fa-regular fa-comment fa-lg"
                 style={{ color: "#000000" }}
+                onClick={() => commentBox()}
               ></i>
               <i
                 className="fa-regular fa-paper-plane fa-lg"
@@ -148,8 +234,21 @@ const Card = (props) => {
           <div className="card-foot-timeline text-muted px-2">
             <p style={{ margin: "0px", fontSize: "13px" }}>{timeElapsed}</p>
           </div>
+          {comment? (
+        <div className="row px-2 d-flex align-items-center">
+          <p className="mt-2 text-body-secondary">Comments</p>
+          <div className="col col-9">
+          <textarea className="form-control border-0 border-bottom rounded-0 textarea" id="exampleFormControlTextarea1" placeholder="Comment" rows="1" style={{resize: 'none', fontSize:'14px', padding:'6px',maxHeight: '70px'}}></textarea>
+
+          </div>
+          <div className="col col-3 d-flex justify-content-end">
+            <button className="btn btn-primary">Post</button>
+          </div>
+        </div>
+          ): (<>  </>)}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

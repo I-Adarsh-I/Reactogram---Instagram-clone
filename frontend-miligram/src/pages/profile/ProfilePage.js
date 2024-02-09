@@ -4,6 +4,7 @@ import axios from "axios";
 import "./profilepage.css";
 import { Modal, OverlayTrigger, Popover } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   faCloudArrowUp,
   faEllipsis,
