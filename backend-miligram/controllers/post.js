@@ -95,7 +95,7 @@ module.exports.likes = async (req, res) => {
     if(!like){
       res.status(400).json({error: "Post could not be found"})
     }else{
-      res.status(200).json({message: `Post liked by ${req.user.fullname}`, user: <req className="user"></req>})
+      res.status(200).json({message: `Post liked by ${req.user.fullname}`, user: req.user.fullname})
     }
     console.log("logging user in likes: ", req.user)
   } catch (err) {
@@ -107,7 +107,7 @@ module.exports.likes = async (req, res) => {
 module.exports.unlike = async (req, res) => {
   
   try {
-    const like = await postModel.findByIdAndUpdate(
+    const unlike = await postModel.findByIdAndUpdate(
       req.body.postid,
       {
         $pull: { likes: req.user._id }, //removing the id of user who liked the post
@@ -118,7 +118,7 @@ module.exports.unlike = async (req, res) => {
     ).populate("author", "_id fullname") //Populate the author with updated documents with the fields id and fullname
     //populate method is useful for retrieving related data from another collections.
 
-    if(!like){
+    if(!unlike){
       res.status(400).json({error: "Post could not be found"})
     }else{
       res.status(200).json({message: `Post unliked by ${req.user.fullname}`})
@@ -131,12 +131,16 @@ module.exports.unlike = async (req, res) => {
 };
 
 module.exports.comment = async (req, res) => {
-  const comment = {commentText: req.body.commentText, commentedBy: req.user._id}
+  const { postId, commentText } = req.body;
+    const comment = {
+        commentText: commentText,
+        commentedBy: req.user._id
+    };
   try {
-    const comment = await postModel.findByIdAndUpdate(
-      req.body.postid,
+    const postedComment = await postModel.findByIdAndUpdate(
+      postId,
       {
-        $push: { comments: comment }, //removing the id of user who liked the post
+        $push: { comments: comment },
       },
       { 
         new: true // returns updated records  
@@ -145,14 +149,37 @@ module.exports.comment = async (req, res) => {
     .populate("author", "_id fullname") //Post owner
     
 
-    if(!comment){
+    if(!postedComment){
       res.status(400).json({error: "Post could not be found"})
     }else{
-      res.status(200).json({message: `${req.user.fullname} commented on your post`})
+      res.status(200).json({message: `${req.user.fullname} commented on your post`, user: postedComment})
     }
-    console.log("logging user in likes: ", req.user)
+    // console.log("Posted Comment:", postedComment);
   } catch (err) {
     console.log(err);
-    res.status(500).josn({error: "Internal server error"});
+    res.status(500).json({error: "Internal server error"});
   }
 };
+
+//Additional
+
+module.exports.postLikeAndUnlike = async(req,res) => {
+  try {
+    if(!req.user){
+      res.status(400).json({error: 'User not authorized'});
+    }
+    const { postId } = req.params;
+    const post = await postModel.findById(postId)
+
+    if(!post){
+      res.status(404).json({error:'Post does not exist'});
+    }
+    const currentUserLikedPost = post.likes.some(userId => userId.toString() === req.user._id.toString());
+
+    // Return the like state of the current user for the post
+    res.json({ isLiked: currentUserLikedPost });
+  } catch (err) {
+    res.status(500).json({error: 'Internal server error'});
+  }
+  
+}
