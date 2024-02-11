@@ -18,6 +18,7 @@ const Posts = () => {
 
     if (resp.status === 200) {
       setAllPosts(resp.data.posts);
+      
     } else {
       toast.error("Some error occured while getting all posts");
       navigate("/");
