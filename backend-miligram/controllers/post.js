@@ -35,9 +35,11 @@ module.exports.showAllPosts = async (req, res) => {
   try {
     const allPosts = await postModel
       .find()
-      .populate("author", "_id fullname profileImg");
+      .populate("author", "_id fullname profileImg")
+      .populate("comments.commentedBy", "_id fullname profileImg");
     res.status(200).json({ posts: allPosts });
   } catch (err) {
+    res.status(500).json({error: 'Internal server error'});
     console.log(err);
   }
 };
@@ -131,21 +133,17 @@ module.exports.unlike = async (req, res) => {
 };
 
 module.exports.comment = async (req, res) => {
-  const { postId, commentText } = req.body;
-    const comment = {
-        commentText: commentText,
-        commentedBy: req.user._id
-    };
+  const comment = { commentText: req.body.commentText, commentedBy: req.user._id }
   try {
     const postedComment = await postModel.findByIdAndUpdate(
-      postId,
+      req.body.postId,
       {
         $push: { comments: comment },
       },
       { 
         new: true // returns updated records  
       }
-    ).populate("comments.commentedBy", "_id fullname") //comment owner
+    ).populate("comments.commentedBy", "_id fullname profileImg") //comment owner
     .populate("author", "_id fullname") //Post owner
     
 

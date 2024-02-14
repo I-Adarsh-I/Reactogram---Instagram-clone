@@ -125,7 +125,10 @@ const Card = (props) => {
     }
   };
 
-  // comment functionality
+  useEffect(() => {
+    setAllComments(props.propsData.comments);
+  }, [props.propsData.comments]);
+
   const commentByUsers = async (postId) => {
     const resultString = localStorage.getItem("Profile");
     const result = JSON.parse(resultString);
@@ -140,12 +143,13 @@ const Card = (props) => {
     try {
       const resp = await axios.put(
         `${BASE_API}/comment`,
-        { postId: postId, commentText: commentBody },
+        { postId, commentText: commentBody },
         config
       );
       if (resp.status === 200) {
         setCommentBody("");
         setAllComments(resp.data.user.comments);
+        props.getAllPosts();
       }
     } catch (err) {
       console.error(err);
@@ -267,7 +271,6 @@ const Card = (props) => {
                     {allCommentsMadeTillNow.length} Comments
                   </div>
                 )}{" "}
-                
               </h6>
             </div>
           </div>
@@ -277,16 +280,7 @@ const Card = (props) => {
 
           {comment ? (
             <>
-          {allCommentsMadeTillNow.length > 0 && (
-            <div className="comments-section">
-              {allCommentsMadeTillNow.map((comment, index) => (
-                <div key={index} className="comment">
-                  <p>{comment.commentText}</p>
-                  {/* Additional comment information can be displayed here */}
-                </div>
-              ))}
-            </div>
-          )}
+              
               <div className="row px-2 d-flex align-items-center">
                 <p className="mt-2 text-body-secondary">Comments</p>
                 <div className="col col-9">
@@ -314,6 +308,19 @@ const Card = (props) => {
                   </button>
                 </div>
               </div>
+              {allCommentsMadeTillNow.length > 0 && (
+                <div className="comments-section">
+                  {allCommentsMadeTillNow.map((comment, index) => (
+                    <div key={index} className="d-flex flex-row card mx-2 my-2 p-2">
+                      <div className="left profile-pic-con"><img className="profile-pic" src={comment.commentedBy.profileImg} alt="" /></div>
+                      <div className="comment px-2 d-flex flex-column justify-content-center gap-1">
+                        <h6 className="m-0">{comment.commentedBy.fullname}</h6>
+                        <p className="m-0 text-black-50">{comment.commentText}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
             <> </>

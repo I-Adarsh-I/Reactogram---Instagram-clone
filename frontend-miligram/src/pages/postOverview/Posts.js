@@ -14,13 +14,18 @@ const Posts = () => {
   const [allPosts, setAllPosts] = useState([]);
 
   const getAllPosts = async () => {
-    const resp = await axios.get(`${BASE_API}/allposts`);
-
-    if (resp.status === 200) {
-      setAllPosts(resp.data.posts);
-      
-    } else {
-      toast.error("Some error occured while getting all posts");
+    try {
+      const resp = await axios.get(`${BASE_API}/allposts`);
+  
+      if (resp.status === 200) {
+        setAllPosts(resp.data.posts);
+      }
+    } catch (err) {
+      if (err.response) {
+        toast.error(err.response.data.error);
+      } else {
+        toast.error("An unexpected error occurred.");
+      }
       navigate("/");
     }
   };
@@ -30,11 +35,9 @@ const Posts = () => {
   }, []);
 
   const handleDeletePost = async (postId) => {
-    const resultString = localStorage.getItem('Profile')
+    const resultString = localStorage.getItem("Profile");
     const result = JSON.parse(resultString);
-    const token = result.token
-    // console.log(result.token)
-    // console.log("Post id of this post is: ",postId)
+    const token = result.token;
 
     try {
       const resp = await axios.delete(`${BASE_API}/deletepost/${postId}`, {
@@ -63,7 +66,7 @@ const Posts = () => {
             />
           ))}
       </div>
-      <ToastContainer />
+      <ToastContainer autoClose={5000}/>
     </div>
   );
 };
